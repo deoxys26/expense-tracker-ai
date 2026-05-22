@@ -41,7 +41,7 @@ else:
     # 1. Main Chat Interface Entry Box
     message = plt.text_input("Type any expense message and it will be classified automatically.", placeholder="e.g. 350 for biryani at Mehfil")
     
-    if plt.button("Send ✨", rekey="send_btn") or (message and plt.session_state.get("last_msg") != message):
+    if plt.button("Send ✨", key="send_btn") or (message and plt.session_state.get("last_msg") != message):
         if message:
             plt.session_state["last_msg"] = message
             with plt.spinner("AI is processing your transaction..."):
