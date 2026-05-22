@@ -1,0 +1,10 @@
+# Ignore local virtual environments
+.venv/
+venv/
+__pycache__/
+
+# Ignore local SQLite databases
+*.db
+
+# CRUCIAL: Ignore your private Google JSON keys!
+backend/google_creations.json
