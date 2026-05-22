@@ -1,4 +1,7 @@
 fastapi
 uvicorn
-streamlit
+pydantic
 requests
+gspread
+google-oauth2-oauthlib
+google-auth
