@@ -2,9 +2,8 @@ import streamlit as st
 import requests
 
 # ── Configuration ─────────────────────────────────────────────
-# Dev mode: "http://localhost:8000"
-# Tunnel mode: Put your public Ngrok backend link here when sharing (e.g., "https://xyz.ngrok-free.app")
-BACKEND = "http://localhost:8000" 
+# Updated to point directly to your live Render backend URL!
+BACKEND = "https://expense-tracker-ai-zgkl.onrender.com" 
 
 # ── Login screen ──────────────────────────────────────────────
 if "user_id" not in st.session_state:
@@ -92,7 +91,7 @@ with tab1:
             else:
                 r = entry["result"]
                 col1, col2, col3 = st.columns(3)
-                col1.metric("Amount", f"₹{r['amount']}" if r['amount'] else "—")
+                col1.metric("Amount", f"References: ₹{r['amount']}" if r['amount'] else "—")
                 col2.metric("Category", r['category'])
                 col3.metric("Vendor", r['vendor'] or "—")
                 st.caption(r['description'])
