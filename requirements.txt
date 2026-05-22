@@ -3,5 +3,5 @@ uvicorn
 pydantic
 requests
 gspread
-google-oauth2-oauthlib
 google-auth
+google-auth-oauthlib
