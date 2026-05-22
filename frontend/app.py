@@ -2,7 +2,7 @@ import streamlit as plt
 import requests
 
 # Set this to your actual Render live URL!
-BACKEND_URL = "https://expense-tracker-ai-7eerztczkrhxvpngs6zdsz.onrender.com" 
+BACKEND_URL = "https://expense-tracker-ai-zgkl.onrender.com" 
 
 plt.set_page_config(page_title="AI Expense Tracker", layout="wide")
 plt.title("💰 Personal AI Expense Tracker")
