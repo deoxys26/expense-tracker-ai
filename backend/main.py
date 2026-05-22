@@ -6,6 +6,7 @@ import re
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import datetime
+import os
 
 app = FastAPI()
 
@@ -13,18 +14,22 @@ CATEGORIES = ["Dining", "Transport", "Groceries", "Entertainment", "Utilities", 
 SHEET_NAME = "Expense Tracker Data"  # <--- Change this to match your actual Google Sheet title!
 
 # ── Google Sheets Setup ───────────────────────────────────────
-import os
-
 def get_sheets():
     scopes = [
         "https://www.googleapis.com/auth/spreadsheets",
         "https://www.googleapis.com/auth/drive"
     ]
     
-    # This automatically finds the correct directory of main.py dynamically!
+    # Find the directory where main.py is located (backend folder)
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    key_path = os.path.join(current_dir, "google_creations.json")
     
+    # 1. First look in the root directory (where Render drops secret files)
+    key_path = os.path.join(current_dir, "..", "google_creations.json")
+    
+    # 2. Fall back to the backend directory if running locally on your laptop
+    if not os.path.exists(key_path):
+        key_path = os.path.join(current_dir, "google_creations.json")
+        
     creds = Credentials.from_service_account_file(key_path, scopes=scopes)
     client = gspread.authorize(creds)
     return client
@@ -125,6 +130,7 @@ Return this exact format:
 
 No explanation, just the JSON."""
 
+    # NOTICE: If your Ollama server isn't hosted in the cloud, this request will fail on Render.
     response = requests.post(
         "http://localhost:11434/api/generate",
         json={
