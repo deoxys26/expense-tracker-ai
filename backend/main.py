@@ -5,13 +5,14 @@ import json
 import re
 import gspread
 from google.oauth2.service_account import Credentials
+from google import genai
 from datetime import datetime
 import os
 
 app = FastAPI()
 
 CATEGORIES = ["Dining", "Transport", "Groceries", "Entertainment", "Utilities", "Other"]
-SHEET_NAME = "Expense Tracker Data"  # <--- Change this to match your actual Google Sheet title!
+SHEET_NAME = "Expense Tracker Data"  # Make sure this matches your exact Google Sheet name!
 
 # ── Google Sheets Setup ───────────────────────────────────────
 def get_sheets():
@@ -81,6 +82,10 @@ def extract_json(raw: str) -> dict:
 
 # ── Routes ────────────────────────────────────────────────────
 
+@app.get("/")
+def home():
+    return {"status": "healthy", "message": "Expense Tracker AI Backend is Live!"}
+
 @app.post("/register")
 def register_user(req: UserRequest):
     client = get_sheets()
@@ -115,7 +120,7 @@ def classify_expense(req: MessageRequest):
     if not user_exists:
         raise HTTPException(status_code=404, detail="User not found. Register first.")
 
-    # Request to local Ollama Llama model
+    # Request to Google Gemini API using cloud variable
     prompt = f"""Extract expense details from this message and return ONLY a JSON object.
 
 Message: "{req.text}"
@@ -128,20 +133,24 @@ Return this exact format:
   "description": "<short description>"
 }}
 
-No explanation, just the JSON."""
+No explanation, just the raw JSON structure."""
 
-    # NOTICE: If your Ollama server isn't hosted in the cloud, this request will fail on Render.
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "llama3.2",
-            "prompt": prompt,
-            "stream": False
-        }
-    )
-
-    raw = response.json()["response"].strip()
-    data = extract_json(raw)
+    try:
+        # Get your Gemini Key from your environmental configurations
+        ai_key = os.environ.get("GEMINI_API_KEY")
+        if not ai_key:
+            raise ValueError("GEMINI_API_KEY environmental variable is missing on Render.")
+            
+        ai_client = genai.Client(api_key=ai_key)
+        
+        response = ai_client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=prompt,
+        )
+        raw = response.text.strip()
+        data = extract_json(raw)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Gemini Cloud AI Failure: {str(e)}")
 
     # To create an incremental id, count total records and add 1
     total_records = len(tx_sheet.get_all_records())
